@@ -1,4 +1,5 @@
 # atom-scroll-assist
+
 Automatically scroll the editor when the cursor moves around.
 
 ```

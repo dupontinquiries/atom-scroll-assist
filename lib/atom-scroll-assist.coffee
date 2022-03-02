@@ -5,7 +5,7 @@ module.exports = atomScrollAssist =
   config:
     scrollDuration:
       type: 'number'
-      default: 0.3
+      default: 0.6
       minimum: 0
       maximum: 5
       description: 'scroll duration in seconds.'
@@ -19,7 +19,7 @@ module.exports = atomScrollAssist =
       order: 2
     scrollRows:
       type: 'integer'
-      default: 3
+      default: 7
       minimum: 1
       maximum: 50
       description: 'Row threshold for smoothing.'
@@ -116,11 +116,21 @@ module.exports = atomScrollAssist =
 
         numRowsToScroll: numRowsToScroll
 
+        # style = 'back'
+        #
+        # if style == 'back'
+        #   appliedStyle = Back.easeInOut.config(0.9)
+        # elif style == 'power'
+        #   appliedStyle = Power3.easeOut
+        # appliedStyle = Back.easeOut.config(0.4)
+
         tween: Tween.to scroller, Math.max(0, (@getScrollDuration() + (@getRowModifier() * rspm)) ),
           top: targetScroll.top
           # ease: Power1.easeInOut
           # ease: Power1.easeOut
-          ease: Back.easeOut.config(0.4)
+          ease: Back.easeInOut.config(0.9)
+          # ease: Back.easeInOut.config(0.9)
+            # ease: Back.easeOut.config(0.4)
           # ease: Power3.easeOut
           # ease: Elastic.easeOut
           # ease: Power2.easeOut
@@ -144,10 +154,10 @@ module.exports = atomScrollAssist =
     animation.tween.seek animation.tween.duration(), false
 
   getScrollDuration: ->
-    atom.config.get('animated-page-scroll.scrollDuration')
+    atom.config.get('atom-scroll-assist.scrollDuration')
 
   getRowModifier: ->
-    atom.config.get('animated-page-scroll.rowModifier')
+    atom.config.get('atom-scroll-assist.rowModifier')
 
   getScrollRows: ->
-    atom.config.get('animated-page-scroll.scrollRows')
+    atom.config.get('atom-scroll-assist.scrollRows')
