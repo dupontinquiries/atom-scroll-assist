@@ -1,0 +1,4 @@
+'atom-workspace atom-text-editor':
+  'ctrl+j': 'atom-scroll-assist:toggle'
+  # 'disable': 'atom-scroll-assist:disable'
+  # 'pagedown': 'atom-scroll-assist:page-down'

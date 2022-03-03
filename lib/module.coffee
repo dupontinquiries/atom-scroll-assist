@@ -1,106 +1,42 @@
-{CompositeDisposable} = require 'atom'
 Tween = require 'gsap'
 
-module.exports = atomScrollAssist =
-  enabled: false
-  config:
-    scrollDuration:
-      type: 'number'
-      default: 0.35
-      minimum: 0
-      maximum: 5
-      description: 'scroll duration in seconds.'
-      order: 1
-    rowModifier:
-      type: 'number'
-      default: 0
-      minimum: 0
-      maximum: 10
-      description: 'row modifier.'
-      order: 2
-    scrollRows:
-      type: 'integer'
-      default: 1
-      minimum: 1
-      maximum: 50
-      description: 'Row threshold for smoothing.'
-      order: 3
 
-  # https://raw.githubusercontent.com/halohalospecial/atom-animated-page-scroll/master/lib/animated-page-scroll.coffee
-  # https://raw.githubusercontent.com/farcaller/typewriter-scroll/master/lib/typewriter-editor.coffee
-
-  activate: (state) ->
+module.exports =
+  enable: ->
     @anims = {}
-    @subscriptions = new CompositeDisposable
-    # throttled = _.throttle(@scrollPage, 25, 1)
-    # document.onkeypress = @scrollPage
-    # @cursorChangePosSubscription = atom.workspace.getActiveTextEditor().onDidChangeCursorPosition throttled
-    # throttled = _.debounce(console.log('hello world'), 600)
-    # document.onkeypress = @debounce @scrollPage, 300
-    # document.onkeypress = @debounce console.log('hello world'), 300
-    # @cursorChangePosSubscription = atom.workspace.getActiveTextEditor().onDidChangeCursorPosition throttled
+    # @subscriptions = new CompositeDisposable
+
     @activeItemSubscription = atom.workspace.onDidStopChangingActivePaneItem =>
       @prepareEditor()
     @prepareEditor()
-    # @cursorChangePosSubscription = atom.workspace.getActiveTextEditor().onDidChangeCursorPosition @scrollPage.bind(this)
-    # @subscriptions.add atom.commands.add 'atom-workspace',
-    #   'atom-scroll-assist:enable': => @enable
-    #   'atom-scroll-assist:disable': => @disable
-      # 'animated-page-scroll:page-down': => @scrollPage 1
-    # @cursorChangePosSubscription = @editor.onDidChangeCursorPosition @scrollPage.bind(this)
-
-  prepareEditor: ->
-    @cursorChangePosSubscription?.dispose()
-    editor = atom.workspace.getActiveTextEditor()
-    return unless editor
-    editorElement = atom.views.getView editor
-
-    @cursorChangePosSubs
-
 
   disable: ->
-    @enabled = false
-    # @typewriterEditor.disable()
-    alert('disabled')
-    @deactivate()
-    # @activeItemSubscription?.dispose()
-    # @cursorChangePosSubscription?.dispose()
-
-  enable: ->
-    @enabled = true
-    # @typewriterEditor.enable()
-    alert('enabled')
-    @activate()
-
-  toggle: ->
-    if @enabled then @disable() else @enable()
-
-  deactivate: ->
-    # alert('deactivated')
-    @subscriptions.dispose()
+    # @subscriptions.dispose()
     for _, animation of @anims
       animation.onDidChangeCursorPositionSubscription?.dispose()
       animation.tween.kill()
     @anims = {}
+
+    @activeItemSubscription?.dispose()
     @cursorChangePosSubscription?.dispose()
 
-  #
-  # disable: ->
-  #   alert('disabled')
-  #   @subscriptions.dispose()
-  #   for _, animation of @anims
-  #     animation.onDidChangeCursorPositionSubscription?.dispose()
-  #     animation.tween.kill()
-  #   @anims = {}
-  #   @cursorChangePosSubscription?.dispose()
-  #   # @activeItemSubscription?.dispose()
-  #   # @cursorChangePosSubscription?.dispose()
-  #
-  # toggle: ->
-  #   alert('toggle')
+  # center: ->
+  #   halfScreen = Math.floor(@editor.getRowsPerPage() / 2)
+  #   cursor = @editor.getCursorScreenPosition()
+  #   position = @editor.getLineHeightInPixels() * (cursor.row - halfScreen)
+  #   # Timeout needed since position changes after ::onDidChangeCursorPosition on moving with keys
+  #   setTimeout => @editorElement.setScrollTop position, 1
 
-  serialize: ->
+  prepareEditor: ->
+    @cursorChangePosSubscription?.dispose()
+    @editor = atom.workspace.getActiveTextEditor()
+    return unless @editor
+    @editorElement = atom.views.getView @editor
+    # @cursorChangePosSubscription = @editor.onDidChangeCursorPosition @center.bind(this)
+    # modded hook
+    @cursorChangePosSubscription = @editor.onDidChangeCursorPosition @scrollPage.bind(this)
 
+  # extra funcs
 
   scrollPage: (direction) ->
     # this.preventDefault()

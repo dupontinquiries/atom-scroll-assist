@@ -1,14 +1,16 @@
 {
   "name": "atom-scroll-assist",
-  "main": "./lib/atom-scroll-assist",
+  "main": "./lib/main",
   "_location": "/atom-scroll-assist",
   "version": "0.0.0",
   "description": "Automatically scroll the editor when the cursor moves around.",
   "keywords": [
+    "typewriter",
+    "scrolling",
+    "writing",
+    "smooth",
+    "butter"
   ],
-  "activationCommands": {
-    "atom-workspace": "atom-scroll-assist:toggle"
-  },
   "repository": "https://github.com/dupontinquiries/atom-scroll-assist",
   "license": "MIT",
   "engines": {
