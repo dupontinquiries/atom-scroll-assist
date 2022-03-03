@@ -5,7 +5,7 @@ module.exports = atomScrollAssist =
   config:
     scrollDuration:
       type: 'number'
-      default: 0.35
+      default: 0.6
       minimum: 0
       maximum: 5
       description: 'scroll duration in seconds.'
@@ -19,7 +19,7 @@ module.exports = atomScrollAssist =
       order: 2
     scrollRows:
       type: 'integer'
-      default: 1
+      default: 7
       minimum: 1
       maximum: 50
       description: 'Row threshold for smoothing.'
@@ -30,7 +30,7 @@ module.exports = atomScrollAssist =
 
   activate: (state) ->
     @anims = {}
-    # @subscriptions = new CompositeDisposable
+    @subscriptions = new CompositeDisposable
     # throttled = _.throttle(@scrollPage, 25, 1)
     # document.onkeypress = @scrollPage
     # @cursorChangePosSubscription = atom.workspace.getActiveTextEditor().onDidChangeCursorPosition throttled
@@ -42,9 +42,9 @@ module.exports = atomScrollAssist =
       @prepareEditor()
     @prepareEditor()
     # @cursorChangePosSubscription = atom.workspace.getActiveTextEditor().onDidChangeCursorPosition @scrollPage.bind(this)
-    # @subscriptions.add atom.commands.add 'atom-workspace',
-    #   'animated-page-scroll:page-up': => @scrollPage -1
-    #   'animated-page-scroll:page-down': => @scrollPage 1
+    @subscriptions.add atom.commands.add 'atom-workspace',
+      'animated-page-scroll:page-up': => @scrollPage -1
+      'animated-page-scroll:page-down': => @scrollPage 1
     # @cursorChangePosSubscription = @editor.onDidChangeCursorPosition @scrollPage.bind(this)
 
   prepareEditor: ->
@@ -52,7 +52,6 @@ module.exports = atomScrollAssist =
     editor = atom.workspace.getActiveTextEditor()
     return unless editor
     editorElement = atom.views.getView editor
-
     @cursorChangePosSubscription = editor.onDidChangeCursorPosition @scrollPage.bind(this)
     # @cursorChangePosSubscription = @editor.onDidChangeCursorPosition @center.bind(this)
 
@@ -77,8 +76,8 @@ module.exports = atomScrollAssist =
     rspm = rows # row speed modifier
     if rspm < 0
       rspm *= -1
-    # if rspm < 10
-    #   return
+    if rspm < 10
+      return
     # console.log('rspm = ' + rspm)
     if @getScrollRows() != 1 && rspm % @getScrollRows() != 0
       return
@@ -90,28 +89,26 @@ module.exports = atomScrollAssist =
     if @anims[editor.id]
       # if an animation was already started for the editor, update the tween target.
       @anims[editor.id].numRowsToScroll = numRowsToScroll
-      @anims[editor.id].tween.updateTo targetScroll, true
+      @anims[editor.id].tween.updateTo targ, true
 
     else
       editorView = atom.views.getView(editor)
       scroller = {top: editorView.getScrollTop()}
 
       @anims[editor.id] =
-        # smooth out animation when a cursor was moved.
+        # stop animation when a cursor was moved.
         onDidChangeCursorPositionSubscription: editor.onDidChangeCursorPosition (_) =>
-          @stopAnimation @anims[editor.id], editor
+          @stopAnimation @anims[editor.id]
 
         numRowsToScroll: numRowsToScroll
 
-        tween: Tween.to scroller, Math.max(0, (@getScrollDuration() + ( (@getRowModifier()) * rspm )) ),
-          top: targ
+        tween: Tween.to scroller, Math.max(0, (@getScrollDuration() + (@getRowModifier() * rspm)) ),
+          top: targetScroll.top
           # ease: Power1.easeInOut
-          ease: Power1.easeOut
-          # ease: Back.easeOut.config(1.0)
-
-          # ease: Back.easeInOut.config(0.8)
+          # ease: Power1.easeOut
+          ease: Back.easeInOut.config(0.8)
           # ease: Back.easeInOut.config(0.9)
-          # ease: Back.easeOut.config(0.4)
+            # ease: Back.easeOut.config(0.4)
           # ease: Power3.easeOut
           # ease: Elastic.easeOut
           # ease: Power2.easeOut
@@ -120,38 +117,12 @@ module.exports = atomScrollAssist =
             if editorView?
               editorView.setScrollTop scroller.top
 
-              # stop update if we hit top or bottom
-              # return unless @animations[editor.id]
-              # animation = @animations[editor.id]
-              # if (animation.numRowsToScroll < 0 && editorView.getScrollTop() <= 0) || (animation.numRowsToScroll > 0 && editorView.getScrollBottom() >= editor.getLineHeightInPixels() * editor.getScreenLineCount())
-              #   @stopAnimation animation, editor
-                # animation.tween.seek animation.tween.duration(), false
-
           onComplete: =>
             @anims[editor.id].onDidChangeCursorPositionSubscription.dispose()
             delete @anims[editor.id]
 
-  stopAnimation: (animation, editor) ->
-    # editor = atom.workspace.getActiveTextEditor()
-
-    half = Math.floor(editor.getRowsPerPage() / 2)
-    curs = editor.getCursorScreenPosition()
-    rows = curs.row - half
-    targ = editor.getLineHeightInPixels() * (rows)
-    rspm = rows # row speed modifier
-    if rspm < 0
-      rspm *= -1
-    if rspm < 10
-      return
-    # console.log('rspm = ' + rspm)
-    if @getScrollRows() != 1 && rspm % @getScrollRows() != 0
-      return
-    rspm = Math.round(rspm / 35)
-
-    numRowsToScroll = @anims[editor.id]?.numRowsToScroll || rows
-    targetScroll = {top: targ} # we want to go to cursor instead of cursor + page
-    animation.tween.updateTo targetScroll, true
-    # animation.tween.seek animation.tween.duration(), false
+  stopAnimation: (animation) ->
+    animation.tween.seek animation.tween.duration(), false
 
   getScrollDuration: ->
     atom.config.get('atom-scroll-assist.scrollDuration')
