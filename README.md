@@ -1,13 +1,13 @@
 # atom-scroll-assist
 
-Automatically scroll the editor when the cursor moves around.
+## Introduction
 
-```
-'atom-workspace atom-text-editor':
-  'pageup': 'animated-page-scroll:page-up'
-  'pagedown': 'animated-page-scroll:page-down'
-```
+Enter a typewriter-esque mode that follows your cursor with a fluid gsap tween animation.
 
-### Settings
+## Settings
 
 You can change the scroll animation duration and the row smoothing threshold in the package settings.
+
+## TODO:
+
+- [ ] fix scroll freakout when trying to highlight a body of text
