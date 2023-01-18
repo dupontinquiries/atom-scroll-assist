@@ -30,6 +30,7 @@ module.exports = atomScrollAssist =
   # https://raw.githubusercontent.com/farcaller/typewriter-scroll/master/lib/typewriter-editor.coffee
 
   activate: (state) ->
+    @counter = 0
     @anims = {}
     @subscriptions = new CompositeDisposable
     # throttled = _.throttle(@scrollPage, 25, 1)
@@ -103,6 +104,13 @@ module.exports = atomScrollAssist =
 
 
   scrollPage: (direction) ->
+    @counter += 1
+    console.log("counter: " + counter)
+    if @counter < 10
+        return
+    else
+        @counter = 0
+        console.log("fire event")
     # this.preventDefault()
     editor = atom.workspace.getActiveTextEditor()
 

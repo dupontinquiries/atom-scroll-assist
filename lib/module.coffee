@@ -3,6 +3,8 @@ Tween = require 'gsap'
 
 module.exports =
   enable: ->
+    # @counter = 0
+    # @max_counter = 3
     @anims = {}
     # @subscriptions = new CompositeDisposable
 
@@ -39,6 +41,13 @@ module.exports =
   # extra funcs
 
   scrollPage: (direction) ->
+    # @counter += 1
+    # # console.log("counter: " + @counter)
+    # if @counter < @max_counter
+    #     return
+    # else
+    #     @counter = 0
+    #     # console.log("fire event")
     # this.preventDefault()
     editor = atom.workspace.getActiveTextEditor()
 
